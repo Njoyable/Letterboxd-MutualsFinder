@@ -1,44 +1,24 @@
 import requests
 from bs4 import BeautifulSoup
 
-def get_parsed_page(url: str) -> None:
-    
-    headers = {
-        "referer": "https://letterboxd.com",
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-    }
+url_following = "https://letterboxd.com/userName/following/"
+url_followers = "https://letterboxd.com/userName/followers/"
 
-    return BeautifulSoup(requests.get(url, headers=headers).text, "lxml")
+def get_user_list(url):
+    page = BeautifulSoup(requests.get(url).content, "lxml")
+    return [img['alt'].lower() for img in page.find_all("img", attrs={'height': '40'})]
 
-pagef = get_parsed_page("https://letterboxd.com/yourUserName/followers/")
-dataf = pagef.find_all("img", attrs={'height': '40'})
-page = get_parsed_page("https://letterboxd.com/yourUserName/following/")
-data = page.find_all("img", attrs={'height': '40'})
+following_users = get_user_list(url_following)
+follower_users = get_user_list(url_followers)
 
-i = 2
+num_pages = 9
+for i in range(2, num_pages):
+    following_users += get_user_list(f"{url_following}page/{i}/")
+    follower_users += get_user_list(f"{url_followers}page/{i}/")
 
-following = []
-followers = []
 
-for person in data:
-    following.append(person['alt'])
-    
-for person in dataf:
-    followers.append(person['alt'])
+follower_users = sorted(follower_users)
+following_users = sorted(following_users)
 
-#look up the number of pages your follower/following list has on your profile
-for i in range(2,7):
-    page = get_parsed_page("https://letterboxd.com/yourUserName/following/page/" + str(i) + "/")
-    data = page.find_all("img", attrs={'height': '40'})
-    pagef = get_parsed_page("https://letterboxd.com/yourUserName/followers/page/" + str(i) + "/")
-    dataf = pagef.find_all("img", attrs={'height': '40'})
-   
-    for person in data:
-        following.append(person['alt'])
-    for person in dataf:
-        followers.append(person['alt'])
-    
-    i = i + 1
-
-diff = list(set(following) - set(followers))
+diff = [name for name in following_users if name not in follower_users]
 print(diff)
