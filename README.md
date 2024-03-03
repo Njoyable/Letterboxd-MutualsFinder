@@ -1,4 +1,4 @@
-# Letterboxd
+# MutualsFinder
 
 I've created this piece of code to find anyone you follow, who doesn't follow you back.
 My motivation behind this was that there are quite a few people who, apparently, need to have a high follower count and a low following count. I am a hater and won't let it slide. GET OUT MY SWAMP!
